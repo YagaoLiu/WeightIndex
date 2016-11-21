@@ -123,7 +123,7 @@ int main (int argc, char ** argv )
 	srand ( time(NULL) );
 	result.open ( output_file );
 	ifstream input_pattern ( "pattern.fa" );
-#if 1
+#if 0
 	string pattern;
 //	cout << "Enter pattern, or enter \"exit\" to exit:" << endl;
 //	cin >> pattern;
@@ -152,19 +152,16 @@ int main (int argc, char ** argv )
 	}
 #endif
 
-#if 0
+#if 1
 	int times = 0;
 	while ( true )	
 	{
-
 		string pattern;
 		int m;
 		list<int> Occ;
 		input_pattern >> pattern;
 		if ( input_pattern.eof() ) break;
 		result << pattern << ":";
-
-		//			auto search_begin = get_time::now();
 
 		int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
 		if ( !num_Occ )

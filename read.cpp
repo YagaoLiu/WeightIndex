@@ -100,8 +100,8 @@ int read ( string filename, double *** text, int * n )
 				dna[i][2] = dna[i][3] = 0.5;
 				break;
 			case 'M':
-				dna[i][0] = 0.7;
-				dna[i][1] = 0.3;
+				dna[i][0] = 0.5;
+				dna[i][1] = 0.5;
 				break;
 			case 'B':
 				dna[i][1] = dna[i][2] = dna[i][3] = 0.33;
