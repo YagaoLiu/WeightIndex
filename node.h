@@ -9,20 +9,16 @@ using namespace std;
 
 struct Node
 {
-		Node * parent;
-		Node * coreNode;
-		vector < Node* > child;
-		string edge;
-		double odds;
-		vector < int > token;
-		void Copy( Node * x );
-		void Update( double p, double z );
-		void Print();
-		void fPrint(ofstream& result);
-		void rootToken( double z, Node *root );
-		void Compactify( int e );
-		int subToken();
-		void deleteNode();
+		Node * parent;				//parent node of this node
+		Node * coreNode;			//corresponding node of this node
+		vector < Node* > child;		//all children nodes of this node
+		string edge;				//the edge between this node and its parent
+		double odds;				//the probability of this node
+		vector < int > token;		//the token given to this node
+		void Copy( Node * x );		//deep copy of a node
+		void Update( double p, double z );	//update this node when add a new letter in the tree
+		int subToken();				//get all tokens in the subtree of this node
+		void deleteNode();			//destructor
 };
 
 void weighted_index_building( double ** text, int n, double z, string * sq_return );

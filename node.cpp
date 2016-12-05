@@ -1,7 +1,8 @@
-#include "node.h"
 #include <vector>
 #include <string>
 #include <cmath>
+
+#include "node.h"
 
 using namespace std;
 
@@ -82,6 +83,3 @@ void Node::deleteNode()
 		delete this;
 	}
 }
-
-
-

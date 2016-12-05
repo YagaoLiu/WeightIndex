@@ -7,7 +7,6 @@
 
 static struct option long_options[] =
 {
-	{ "pattern",			required_argument,	NULL,	'p' },
 	{ "text",				required_argument,	NULL,	't' },
 	{ "output",				required_argument,	NULL,	'o' },
 	{ "threshold",			required_argument,	NULL,	'z'	},
@@ -26,14 +25,10 @@ int decode_switches ( int argc, char * argv[], struct TSwitch * sw )
 
 	args = 0;
 
-	while ( ( opt = getopt_long ( argc, argv, "p:t:o:z:h", long_options, NULL ) ) != -1 )
+	while ( ( opt = getopt_long ( argc, argv, "t:o:z:h", long_options, NULL ) ) != -1 )
 	{
 		switch ( opt )
 		{
-			case 'p':
-				sw -> pattern_file_name = optarg;
-				args ++;
-				break;
 			case 't':
 				sw -> text_file_name = optarg;
 				args ++;
@@ -69,14 +64,7 @@ void usage ( void )
 {
 	cout << "Usage: Weighted Index <options>"  << endl;
 	cout << "Standard (Mandatory):" << endl;
-	cout << "	-p, --pattern\t<str>\tFilename for Pattern." << endl;
 	cout << "	-t, --text\t<str>\tFilename for Text." << endl;
 	cout << "	-o, --output\t<str>\tFilename for Output. Default \"Result.txt\"" << endl;
 	cout << "	-z, --threshold\t <dbl>\tcumulative weight threshold."<<endl;
 }
-
-
-
-
-
-

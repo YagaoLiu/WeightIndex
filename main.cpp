@@ -99,8 +99,9 @@ int main (int argc, char ** argv )
 	string sq;
 	weighted_index_building ( text, n, z, &sq );
 
-	cout << "After indexing, sq length is " << sq.size() << endl;
+	cout << "After building, sq length is " << sq.size() << endl;
 
+	//Index using Suffix array
 	int N = sq.size();
 
 	int * SA	= new int [N];
@@ -118,7 +119,7 @@ int main (int argc, char ** argv )
 
 	auto end = get_time::now();
 	auto diff = end - begin;
-	cout<<"Indexing Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
+	cout<<"Indexing time is:  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 
 	srand ( time(NULL) );
 	result.open ( output_file );
