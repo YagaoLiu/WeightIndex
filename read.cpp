@@ -131,7 +131,7 @@ int read_pattern ( string filename, string * pattern, int * m )
 	if ( !input.good() )
 	{
 		cout << "Error: Cannot open file " << filename << ".\n";
-		return -1;
+		return 0;
 	}
 
 	string line, name, content;

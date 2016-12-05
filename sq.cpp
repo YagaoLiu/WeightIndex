@@ -198,9 +198,10 @@ void weighted_index_building( double ** text, int n, double z, string * sq_retur
 			if ( sq[j].size() != 0 )
 			{
 				sq_return->append( sq[j] );
-				sq_return->push_back ( '$' );
+				sq_return->push_back ( '#' );
 			}
 	}
+	sq_return->back() = '$';
 #endif
 	tree[0]->deleteNode();
 	delete[] tree;
