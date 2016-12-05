@@ -11,7 +11,7 @@ EXE=   index
 SRC=    main.cpp read.cpp input.cpp lcp.cpp sq.cpp node.cpp index.cpp match.cpp matches.cpp
 
 HD=     defs.h node.h Makefile
- 
+
 # 
 # No need to edit below this line 
 # 
