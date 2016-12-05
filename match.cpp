@@ -27,12 +27,6 @@ int match ( string & pattern, string & text, int n, int * SA, int * LCP, int * M
 	int num_Occ = 0;
 	int found_flag = 0;;
 	
-	// RMQ
-//	vector<int> v ( N, 0 );
-//	for ( int i = 0; i < N; i++ )
-//		v[i] = LCP[i];
-//	rmq_succinct_sct<> rmq ( &v );
-	
 	// LCP Match
 	l = lcp ( text, SA[0], pattern, 0 );
 	r = lcp ( text, SA[N-1], pattern, 0 );
