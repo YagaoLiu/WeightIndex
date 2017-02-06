@@ -5,7 +5,7 @@ Weighted Index: Suffix Array Version
 
 This installation requires the pre-installation of the cmake tool, a C++ compiler, and the libraries: libdivsufsort and sdsl.
 
-For Linux, you can install libraries libdivsufsort and sdsl via
+For Linux, you can install cmake and libraries libdivsufsort and sdsl via
 ```
 	 ./pre-install.sh 
 ```
