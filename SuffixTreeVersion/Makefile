@@ -34,9 +34,5 @@ $(OBJ): $(MF) $(HD)
 clean: 
 	rm -f $(OBJ) $(EXE) *~
 
-clean-all:
-	rm -f $(OBJ) $(EXE) *~
-	rm -r libsdsl
-	rm -r sdsl-lite
 
 
