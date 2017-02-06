@@ -18,7 +18,7 @@ The shell command 'make' should compile this program.
 After compilation the binary 'index' will be created in the working directory, e.g. you can call it in this directory via
 
 ```
-  ./index -t ../example/text.fa -z 8 -o output.txt
+  ./index -t ../exampledata/text.fa -z 8 -o output.txt
 ```
 <b>Usage:</b>
 ```
