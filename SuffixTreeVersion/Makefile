@@ -4,13 +4,13 @@ CC=     g++
  
 CFLAGS= -g -fopenmp -msse4.2 -fomit-frame-pointer -funroll-loops 
  
-LFLAGS= -std=c++11 -O3 -DNDEBUG -I ./libsdsl/include/ -L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libsdsl/lib
+LFLAGS= -std=c++11 -O3 -DNDEBUG 
 
 EXE=   index 
  
-SRC=    main.cpp read.cpp input.cpp lcp.cpp sq.cpp node.cpp index.cpp match.cpp matches.cpp
+SRC=    main.cpp read.cpp input.cpp sq.cpp node.cpp maximalSF.cpp stNode.cpp suffixTree.cpp
 
-HD=     defs.h node.h Makefile
+HD=     defs.h node.h stNode.h suffixTree.h Makefile
 
 # 
 # No need to edit below this line 

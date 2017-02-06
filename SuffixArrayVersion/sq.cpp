@@ -96,6 +96,7 @@ void root_token ( double z, Node * new_root, Node * root )
 	}
 }
 
+#if 0
 void Node::Compactify( int e )
 {
 	if ( this->child.size() == 1 )
@@ -116,6 +117,7 @@ void Node::Compactify( int e )
 			this->child[i]->Compactify( i );
 	}
 }
+#endif
 
 void print_out ( Node * x )
 {
@@ -184,7 +186,6 @@ void weighted_index_building( double ** text, int n, double z, string * sq_retur
 		i--;
 	}
 
-	tree[0]->Compactify(0);
 	cout << "finish building" << endl;
 
 #if 1 

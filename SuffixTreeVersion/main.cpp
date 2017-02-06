@@ -7,9 +7,7 @@
 
 #include "node.h"
 #include "defs.h"
-
-#include <divsufsort.h>
-#include <sdsl/rmq_support.hpp>
+#include "suffixTree.h"
 
 using namespace std;
 using get_time = chrono::steady_clock;
@@ -99,46 +97,22 @@ int main (int argc, char ** argv )
 	string sq;
 	weighted_index_building ( text, n, z, &sq );
 
+	int N = sq.size();
+	int * ME = new int [N];
+	MaximalSolidFactors ( text, sq, N, n, z, ME );
+
+	for ( auto i = 0; i < N; i++ )
+		cout << ME[i] << ' ';
+	cout << endl;
+
 	cout << "After building, sq length is " << sq.size() << endl;
 
-	//Index using Suffix array
-	int N = sq.size();
+	//build trimmed suffix tree of sq
+	suffixTree ST(sq);
+	ST.trimST(ME, n+1);
 
-	int * SA	= new int [N];
-	int * LCP	= new int [N];
-	int * ME	= new int [N];
-	unsigned char * psq	= new unsigned char [N+1];
-	strcpy ( ( char * )psq, sq.c_str() );
 
-	SA_LCP_index ( text, psq, N, n, z, SA, LCP, ME );
-
-	vector < int > v ( N, 0 );
-	for ( int i = 0; i < N; i++ )
-		v[i] = LCP[i];
-	rmq_succinct_sct<> rmq(&v);
-
-	auto end = get_time::now();
-	auto diff = end - begin;
-	cout<<"Indexing time is:  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
-
-	srand ( time(NULL) );
-	result.open ( output_file );
-	
-	result << endl;
-	result << endl;
-	result << endl;
-
-	for ( int i = 0; i < N; i++ )
-		result << i << ' ';
-	result << endl;
-	for ( int i = 0; i < N; i++ )
-		result << sq[i] << ' ';
-	result << endl;	
-	result << "SA:" << endl;
-	for ( int i = 0; i < N; i++ )
-		result << SA[i] << ":\t" << sq.substr(SA[i]) << '\n';
-
-#if 1
+#if 0 
 	while ( true )
 	{
 		string pattern_file_name;
@@ -147,9 +121,6 @@ int main (int argc, char ** argv )
 		if ( pattern_file_name == "exit" )
 		{
 			cout << "Program exit!" << endl;
-//			end = get_time::now();
-//			diff = end - begin;
-//			cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 			return 0;
 		}
 		else
@@ -182,7 +153,7 @@ int main (int argc, char ** argv )
 	}
 #endif
 
-#if 0
+#if 1 
 	while ( true )
 	{
 		string pattern;
@@ -191,18 +162,18 @@ int main (int argc, char ** argv )
 		if ( pattern == "exit" )
 		{
 			cout << "Program exit!" << endl;
-			end = get_time::now();
-			diff = end - begin;
+			auto end = get_time::now();
+			auto diff = end - begin;
 			cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 			return 0;
 		}
 		else
 		{
 			int m = pattern.size();
-			list<int> Occ;
+			vector<int> Occ;
 			cout << "Pattern length:" << m << endl;
-			int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
-			if ( num_Occ==0 )
+			int occ = ST.forward_search( pattern, Occ );
+			if ( occ==0 )
 				cout << "No found\n";
 			else
 			{
@@ -217,7 +188,7 @@ int main (int argc, char ** argv )
 	}
 #endif
 
-#if 0
+#if 0 
 	ifstream input_pattern ( "pattern.fa" );
 	int times = 0;
 	while ( true )	
@@ -249,10 +220,6 @@ int main (int argc, char ** argv )
 //	diff = end - begin;
 //	cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 
-	delete[] SA;
-	delete[] LCP;
-	delete[] ME;
-	delete[] psq;
 	for ( int i = 0; i < n; i++ )
 		delete[] text[i];
 	delete[] text;

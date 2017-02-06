@@ -1,0 +1,6 @@
+>pattern1:No found
+AC:0 1 
+>pattern2:No found
+CGTC:No found
+>pattern3:No found
+TG:No found
