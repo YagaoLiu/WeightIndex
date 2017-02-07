@@ -25,6 +25,7 @@ static struct option long_options[] =
 	{ "text",				required_argument,	NULL,	't' },
 	{ "output",				required_argument,	NULL,	'o' },
 	{ "threshold",			required_argument,	NULL,	'z'	},
+	{ "mod",				required_argument,  NULL,	'm' },
 	{ "help",				0,					NULL,	'h' },
 };
 
@@ -40,7 +41,7 @@ int decode_switches ( int argc, char * argv[], struct TSwitch * sw )
 
 	args = 0;
 
-	while ( ( opt = getopt_long ( argc, argv, "t:o:z:h", long_options, NULL ) ) != -1 )
+	while ( ( opt = getopt_long ( argc, argv, "t:o:z:m:h", long_options, NULL ) ) != -1 )
 	{
 		switch ( opt )
 		{
@@ -59,6 +60,15 @@ int decode_switches ( int argc, char * argv[], struct TSwitch * sw )
 					return 0;
 				}
 				sw -> z = val;
+				args ++;
+				break;
+			case 'm':
+				val = strtol ( optarg, &ep, 10 );
+				if ( optarg == ep )
+				{
+					return 0;
+				}
+				sw -> mod = val;
 				args ++;
 				break;
 			case 'h':
@@ -82,4 +92,5 @@ void usage ( void )
 	cout << "	-t, --text\t<str>\tFilename for Text." << endl;
 	cout << "	-o, --output\t<str>\tFilename for Output. Default \"Result.txt\"" << endl;
 	cout << "	-z, --threshold\t <dbl>\tcumulative weight threshold."<<endl;
+	cout << "	-m, --mod\t<int>\tRead readme.md" << endl;
 }

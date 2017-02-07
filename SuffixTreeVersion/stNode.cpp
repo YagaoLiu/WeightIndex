@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <string>
+#include <set>
 #include <unordered_map>
 #include "stNode.h"
 
@@ -101,13 +102,13 @@ void stNode::addLeaf( int i )
 	{
 		stNode * leaf = new stNode( i, this->depth+1, '$' );
 		leaf->parent = this;
-		leaf->Occ.push_back( i );
+		leaf->Occ.insert( i );
 		pair<char, stNode*> insertLeaf( '$', leaf );
 		this->child.insert( insertLeaf );
 	}
 	else
 	{
-		it->second->Occ.push_back( i );
+		it->second->Occ.insert( i );
 	}
 }
 

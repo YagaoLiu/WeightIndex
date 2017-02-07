@@ -16,6 +16,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ class stNode
 		stNode * parent;
 		stNode * slink;
 	public:
-		vector<int> Occ;
+		set<int> Occ;
 		stNode();
 		stNode( int i, int d, char c );
 		int getStart();

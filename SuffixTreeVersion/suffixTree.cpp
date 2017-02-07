@@ -87,33 +87,6 @@ void suffixTree::bfs_leaves()
 	}
 }
 
-void suffixTree::bfs_Occ( stNode * suffixRoot, vector<int> &Occur )
-{
-	stNode * u = suffixRoot;
-	stNode * v = NULL;
-	stack<stNode*> s;
-	s.push( u );
-	while( !s.empty() )
-	{
-		v = s.top();
-		s.pop();
-		if( v->numChild() == 0 )
-		{
-			for( auto it = v->Occ.begin(); it != v->Occ.end(); it++ )
-			{
-				Occur.push_back( *it );
-			}
-		}
-		else
-		{
-			stNode ** children = v->allChild();
-			for ( int i = 0; i < v->numChild(); i++ )
-				s.push( children[i] );
-			delete[] children;
-		}
-	}
-}
-
 suffixTree::~suffixTree()	
 {
 }
@@ -160,44 +133,6 @@ stNode * suffixTree::createBranch( stNode * u, int i, int d )
 	u->addChild( w, this->T->at( i+d ) );
 //	w->setParent( u, this->T->at( i+d ) );
 	return w;
-}
-
-int suffixTree::forward_search( string x, vector<int> &Occur )
-{
-	int m = x.size();
-	int d = 0;
-	stNode * u = this->root;
-	stNode * v = NULL;
-	bool match = true;
-	while ( match )
-	{
-		v = u->getChild( x[d] );
-		if ( v == NULL )
-		{
-			match = false;
-			return 0;
-		}
-		int i = u->getDepth();
-		for ( i ; i < m && i < v->getDepth(); i++ )
-		{
-			if ( x[i] != this->T->at( v->getStart()+i ) )
-			{
-				match = false;
-				return 0;
-			}
-		}
-		if( m <= v->getDepth() )
-		{
-			bfs_Occ( v, Occur );
-			return 1;
-		}
-		else
-		{
-			d = v->getDepth();
-			u = v;
-		}
-	}
-	return 0;
 }
 
 stNode * suffixTree::forward_search_node( stNode * s, int i, int l )
@@ -263,5 +198,70 @@ void suffixTree::trimST( int * ME, int m )
 		}
 	}
 #endif
+}
+
+void suffixTree::bfs_Occ( stNode * suffixRoot, set<int> &Occur )
+{
+	stNode * u = suffixRoot;
+	stNode * v = NULL;
+	stack<stNode*> s;
+	s.push( u );
+	while( !s.empty() )
+	{
+		v = s.top();
+		s.pop();
+		if( v->numChild() == 0 )
+		{
+			for( auto it = v->Occ.begin(); it != v->Occ.end(); it++ )
+			{
+				Occur.insert( *it );
+			}
+		}
+		else
+		{
+			stNode ** children = v->allChild();
+			for ( int i = 0; i < v->numChild(); i++ )
+				s.push( children[i] );
+			delete[] children;
+		}
+	}
+}
+
+int suffixTree::forward_search( string x, set<int> &Occur )
+{
+	int m = x.size();
+	int d = 0;
+	stNode * u = this->root;
+	stNode * v = NULL;
+	bool match = true;
+	while ( match )
+	{
+		v = u->getChild( x[d] );
+		if ( v == NULL )
+		{
+			match = false;
+			return 0;
+		}
+		int i = u->getDepth();
+		for ( i ; i < m && i < v->getDepth(); i++ )
+		{
+			if ( x[i] != this->T->at( v->getStart()+i ) )
+			{
+				match = false;
+				return 0;
+			}
+		}
+		if( m <= v->getDepth() )
+		{
+			bfs_Occ( v, Occur );
+			return 1;
+		}
+		else
+		{
+			d = v->getDepth();
+			u = v;
+		}
+	}
+	return 0;
 }
 

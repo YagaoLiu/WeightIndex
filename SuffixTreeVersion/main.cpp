@@ -19,6 +19,7 @@
 #include <list>
 #include <cstdlib>
 #include <ctime>
+#include <set>
 
 #include "node.h"
 #include "defs.h"
@@ -39,8 +40,6 @@ int main (int argc, char ** argv )
 	int n;
 	double ** text;
 
-	ofstream result;
-
 	unsigned int k;
 
 	/* Decodes the arguments */
@@ -48,7 +47,7 @@ int main (int argc, char ** argv )
 	k = decode_switches ( argc, argv, &sw );
 
 	/* Check the arguments */
-	if ( k < 5 )
+	if ( k < 7 )
 	{
 		usage();
 		return 1;
@@ -61,10 +60,9 @@ int main (int argc, char ** argv )
 			return 0;
 		}
 		else
-	{
+		{
 			text_file = sw.text_file_name;
 		}
-		
 
 /*
 		if ( sw.pattern_file_name.empty() )
@@ -94,6 +92,17 @@ int main (int argc, char ** argv )
 		else
 		{
 			cout << "Error: z must be a positive number!\n";
+			return 0;
+		}
+
+		if ( sw.mod < 0 || sw.mod > 2 )
+		{
+			cout << "Error: Wrong mod select!\n";
+			return 0;
+		}
+		else
+		{
+			mod = sw.mod;
 		}
 	}
 
@@ -116,125 +125,108 @@ int main (int argc, char ** argv )
 	int * ME = new int [N];
 	MaximalSolidFactors ( text, sq, N, n, z, ME );
 
-	for ( auto i = 0; i < N; i++ )
-		cout << ME[i] << ' ';
-	cout << endl;
-
-	cout << "After building, sq length is " << sq.size() << endl;
-
 	//build trimmed suffix tree of sq
 	suffixTree ST(sq);
 	ST.trimST(ME, n+1);
 
-
-#if 0 
-	while ( true )
+	ofstream result ( output_file );
+	switch ( mod )
 	{
-		string pattern_file_name;
-		cout << "Enter pattern file name, or enter \"exit\" to exit:" << endl;
-		cin >> pattern_file_name;
-		if ( pattern_file_name == "exit" )
-		{
-			cout << "Program exit!" << endl;
+		case 0:
+			cout << "The final z-sting and Maximal solid factor array will output to " << output_file << endl;
+			result << sq << endl;
+			for ( auto it = 0; it < N; it++ )
+				result << ME[it] << ' ';
+			result << endl;
 			return 0;
-		}
-		else
-		{
-			begin = get_time::now();
-			int m;
-			string pattern;
-			if ( !read_pattern( pattern_file_name, &pattern, &m ) )
-			{
-				continue;
-			}
-			list<int> Occ;
-			cout << "Pattern length:" << m << endl;
-			int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
-			end = get_time::now();
-			diff = end - begin;
-			if ( num_Occ==0 )
-				cout << "No found\n";
-			else
-			{
-				cout << "Number of occurrences:" << Occ.size() << endl;
-				cout << "Positions of occurrences: ";
-				for ( auto it = Occ.begin(); it != Occ.end(); it++ )
-					cout << *it << ' ';
-				cout << '\n';
-				cout << "Searching time: " << chrono::duration_cast<chrono::milliseconds>(diff).count() << " ms" << endl;
-			}
-			Occ.clear();
-		}
-	}
-#endif
 
-#if 1 
-	while ( true )
-	{
-		string pattern;
-		cout << "Enter pattern, or enter \"exit\" to exit:" << endl;
-		cin >> pattern;
-		if ( pattern == "exit" )
-		{
-			cout << "Program exit!" << endl;
-			auto end = get_time::now();
-			auto diff = end - begin;
-			cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
+		case 1:
+			while ( true )
+			{
+				string pattern;
+				cout << "Enter pattern, or enter \"exit\" to exit:" << endl;
+				cin >> pattern;
+				if ( pattern == "exit" )
+				{
+					cout << "Program exit!" << endl;
+					auto end = get_time::now();
+					auto diff = end - begin;
+					cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
+					return 0;
+				}
+				else
+				{
+					result << pattern << ":\t";
+					int m = pattern.size();
+					set<int> Occ;
+					cout << "Pattern length:" << m << endl;
+					int occ = ST.forward_search( pattern, Occ );
+					if ( occ==0 )
+					{
+						cout << "No found\n";
+						result << "No found\n";
+					}
+					else
+					{
+						cout << "Number of occurrences:" << Occ.size() << endl;
+						for ( auto it = Occ.begin(); it != Occ.end(); it++ )
+						{
+							cout << *it << ' ';
+							result << *it << ' ';
+						}
+						cout << '\n';
+						result << '\n';
+					}
+					Occ.clear();
+				}
+			}
 			return 0;
-		}
-		else
-		{
-			int m = pattern.size();
-			vector<int> Occ;
-			cout << "Pattern length:" << m << endl;
-			int occ = ST.forward_search( pattern, Occ );
-			if ( occ==0 )
-				cout << "No found\n";
-			else
+		
+		case 2:
+			while ( true )
 			{
-				cout << "Number of occurrences:" << Occ.size() << endl;
-				cout << "Positions of occurrences: ";
-				for ( auto it = Occ.begin(); it != Occ.end(); it++ )
-					cout << *it << ' ';
-				cout << '\n';
+				string pattern_file_name;
+				cout << "Enter pattern file name, or enter \"exit\" to exit:" << endl;
+				cin >> pattern_file_name;
+				if ( pattern_file_name == "exit" )
+				{
+					cout << "Program exit!" << endl;
+					return 0;
+				}
+				else
+				{
+					ifstream input_pattern ( pattern_file_name );
+					while ( true )
+					{
+						string pattern;
+						set<int> Occ;
+						input_pattern >> pattern;
+						int m = pattern.size();
+						if ( input_pattern.eof() ) break;
+						result << pattern << ":\t";
+						cout << pattern << ":\t";
+						int occ = ST.forward_search( pattern, Occ );
+						if ( occ == 0 )
+						{
+							cout << "No found\n";
+							result << "No found\n";
+						}
+						else
+						{
+							for ( auto it = Occ.begin(); it != Occ.end(); it++ )
+							{
+								cout << *it << ' ';
+								result << *it << ' ';
+							}
+							cout << '\n';
+							result << '\n';
+						}
+						Occ.clear();
+					}
+				}
 			}
-			Occ.clear();
-		}
+			return 0;
 	}
-#endif
-
-#if 0 
-	ifstream input_pattern ( "pattern.fa" );
-	int times = 0;
-	while ( true )	
-	{
-		string pattern;
-		int m;
-		list<int> Occ;
-		input_pattern >> pattern;
-		if ( input_pattern.eof() ) break;
-		result << pattern << ":";
-
-		int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
-		if ( !num_Occ )
-		{
-			result << "No found\n";
-		}
-		else
-		{
-			for ( auto it = Occ.begin(); it != Occ.end(); it++ )
-				result << *it << ' ';
-			result << '\n';
-		}
-		Occ.clear();
-
-		times ++;
-	}
-#endif
-//	end = get_time::now();
-//	diff = end - begin;
-//	cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
-
 	for ( int i = 0; i < n; i++ )
 		delete[] text[i];
 	delete[] text;
