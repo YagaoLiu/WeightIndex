@@ -112,7 +112,8 @@ int read ( string filename, double *** text, int * n )
 				dna[i][0] = dna[i][3] = 0.5;
 				break;
 			case 'K':
-				dna[i][2] = dna[i][3] = 0.5;
+				dna[i][2] = 0.5;
+				dna[i][3] = 0.5;
 				break;
 			case 'M':
 				dna[i][0] = 0.5;

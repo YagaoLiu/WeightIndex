@@ -27,17 +27,33 @@ using namespace std;
 char alphabet[4] = {'A', 'C', 'G', 'T'};
 map < int, Node* > token_map;
 vector < string > sq;
+vector <int> heavy_string;
 
-string token_track ( Node * token_node, Node * ancestor_node )
+void heavy_position ( double ** text, vector<int> &heavy_string, int pos )
 {
-	string token_sq;
+	int heavy_letter = 0;
+	double max = text[pos][0];
+	for ( int i = 1; i < 4; i++ )
+	{
+		if ( max < text[pos][i] )
+		{
+			max = text[pos][i];
+			heavy_letter = i;
+		}
+	}
+	heavy_string[pos] = heavy_letter;
+}
+
+void token_track ( Node * token_node, Node * ancestor_node, string& token_sq )
+{
 	Node * track = token_node;
 	while ( track != ancestor_node && track != NULL )
 	{
-		token_sq.insert ( 0, track->edge );
+		token_sq[track->parent->pos] = alphabet[track->edge];
+		for ( int i = track->parent->pos+1; i < track->pos; i++ )
+			token_sq[i] = alphabet[heavy_string[i]];
 		track = track->parent;
 	}
-	return token_sq;
 }
 
 void breadth_first_track ( Node * root, vector < Node * > *bft_nodes )
@@ -74,8 +90,7 @@ void token_request ( Node * root )
 				{
 					T->token[i] = T->coreNode->subToken();
 				}
-				string temp = token_track ( token_map[T->token[i]], T->coreNode );
-				sq[T->token[i]].insert ( 0, temp );
+			   	token_track ( token_map[T->token[i]], T->coreNode, sq[T->token[i]]);
 				token_map[T->token[i]] = T;
 			}
 		}
@@ -104,39 +119,15 @@ void root_token ( double z, Node * new_root, Node * root )
 			{
 				new_root->token[i] = root->subToken();
 			}
-			string temp = token_track ( token_map[new_root->token[i]], root );
-			sq[new_root->token[i]].insert ( 0, temp );
+			token_track ( token_map[new_root->token[i]], root, sq[new_root->token[i]] );
 			token_map[new_root->token[i]] = new_root;
 		}
 	}
 }
 
-#if 0
-void Node::Compactify( int e )
-{
-	if ( this->child.size() == 1 )
-	{
-		if ( this->parent )
-		{
-			string temp = this->edge;
-			temp += this->child[0]->edge;
-			this->child[0]->edge = temp;
-			this->child[0]->parent = this->parent;
-			this->parent->child[e] = this->child[0];
-			this->parent->child[e]->Compactify ( e );
-		}
-	}
-	else
-	{
-		for ( unsigned int i = 0; i < this->child.size(); i++ )
-			this->child[i]->Compactify( i );
-	}
-}
-#endif
-
 void print_out ( Node * x )
 {
-	cout << x << ":\t" << x->edge << " || " << x->odds;
+	cout << x << ":\tpos:" << x->pos << " || edge:" << x->edge << " || parent:" << x->parent<< " || probablity:" << x->odds;
 	if ( x->token.size() )
 	{
 		cout << "\ttoken: ";
@@ -153,16 +144,27 @@ void print_out ( Node * x )
 	}
 }
 
-
 void weighted_index_building( double ** text, int n, double z, string * sq_return )
 {
+	heavy_string.resize(n);
+	for ( int i = 0; i < n; i++ )
+	{
+		heavy_position ( text, heavy_string, i );
+	}		
+
 	Node ** tree;
 	tree = new Node * [2];
 	tree[0] = new Node;
 	tree[0]->parent = NULL;
 	tree[0]->odds = 1;
+	tree[0]->pos = n;
 	tree[0]->token.resize ( floor(z) );
 	sq.resize ( floor(z) );
+	for ( int i = 0; i < z; i++ )
+	{
+		sq[i].resize(n, 'N');
+	}
+
 	for ( int t = 0; t < floor(z); t++ )
 	{
 		tree[0]->token[t] = t;
@@ -175,6 +177,7 @@ void weighted_index_building( double ** text, int n, double z, string * sq_retur
 		tree[1] = new Node;
 		tree[1]->parent = NULL;
 		tree[1]->odds = 1;
+		tree[1]->pos = i;
 		for ( int j = 0; j < 4; j++ )
 		{
 			if ( text[i][j] >= 1/z )
@@ -183,31 +186,34 @@ void weighted_index_building( double ** text, int n, double z, string * sq_retur
 				branch->Copy ( tree[0] );
 				branch->parent = tree[1];
 				branch->odds = text[i][j];
-				branch->edge.push_back( alphabet[j] );
+				branch->edge = j ;
 				tree[1]->child.push_back( branch );
 				tree[1]->child.back()->Update( text[i][j], z );
 			}
 		}
+		tree[1]->Compact( 0 );
+#if 1
 		token_request ( tree[1] );
 		root_token( z, tree[1], tree[0] );
-		for ( unsigned int t = 0; t < tree[1]->token.size(); t++ )
-		{
-			int l = ( n- i ) - sq[tree[1]->token[t]].size();
-			if ( l > 0 )
-				sq[tree[1]->token[t]].insert ( sq[tree[1]->token[t]].begin(), l, 'N' );
-		}
+//		for ( unsigned int t = 0; t < tree[1]->token.size(); t++ )
+//		{
+//			int l = ( n- i ) - sq[tree[1]->token[t]].size();
+//			if ( l > 0 )
+//				sq[tree[1]->token[t]].insert ( sq[tree[1]->token[t]].begin(), l, 'N' );
+//		}
+#endif
 		swap ( tree[0], tree[1] );	
 		tree[1]->deleteNode();
 		i--;
+	//	print_out(tree[0]);
+	//	cout << "=====================================================" << endl;
 	}
-
-	cout << "finish building" << endl;
 
 #if 1 
 	for ( int j = 0; j < z; j++ )
 	{
-		string temp = token_track(token_map[j], tree[0] );
-		sq[j].insert ( 0, temp );
+	    token_track(token_map[j], tree[0], sq[j] );
+//		sq[j].insert ( 0, temp );
 	}
 	for ( int j = 0; j < z; j++ )
 	{
@@ -221,5 +227,7 @@ void weighted_index_building( double ** text, int n, double z, string * sq_retur
 #endif
 	tree[0]->deleteNode();
 	delete[] tree;
+	heavy_string.clear();
+	vector<int>().swap ( heavy_string );
 }
 

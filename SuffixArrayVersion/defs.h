@@ -27,6 +27,7 @@ using namespace sdsl;
 struct TSwitch
 {
 	double z;
+	int mod;
 	string text_file_name;
 	string pattern_file_name;
 	string output_file_name;

@@ -29,6 +29,8 @@
 using namespace std;
 using get_time = chrono::steady_clock;
 
+double ** text;
+
 int main (int argc, char ** argv )
 {
 	TSwitch sw;
@@ -39,7 +41,6 @@ int main (int argc, char ** argv )
 	double z;
 	
 	int n;
-	double ** text;
 
 	ofstream result;
 
@@ -63,22 +64,9 @@ int main (int argc, char ** argv )
 			return 0;
 		}
 		else
-	{
+		{
 			text_file = sw.text_file_name;
 		}
-		
-
-/*
-		if ( sw.pattern_file_name.empty() )
-		{
-			cout << "Error: No pattern input!\n";
-			return 0;
-		}
-		else
-		{
-			pattern_file = sw.pattern_file_name;
-		}
-*/
 		if ( sw.output_file_name.empty() )
 		{
 			cout << "Error: No Output file\n";
@@ -115,7 +103,6 @@ int main (int argc, char ** argv )
 	weighted_index_building ( text, n, z, &sq );
 
 	cout << "After building, sq length is " << sq.size() << endl;
-
 	//Index using Suffix array
 	int N = sq.size();
 
@@ -131,14 +118,13 @@ int main (int argc, char ** argv )
 	for ( int i = 0; i < N; i++ )
 		v[i] = LCP[i];
 	rmq_succinct_sct<> rmq(&v);
-
+	
 	auto end = get_time::now();
 	auto diff = end - begin;
 	cout<<"Indexing time is:  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 
 	srand ( time(NULL) );
 	result.open ( output_file );
-
 #if 0
 	while ( true )
 	{
@@ -148,58 +134,16 @@ int main (int argc, char ** argv )
 		if ( pattern_file_name == "exit" )
 		{
 			cout << "Program exit!" << endl;
-//			end = get_time::now();
-//			diff = end - begin;
-//			cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 			return 0;
 		}
 		else
 		{
-			begin = get_time::now();
 			int m;
 			string pattern;
 			if ( !read_pattern( pattern_file_name, &pattern, &m ) )
 			{
 				continue;
 			}
-			list<int> Occ;
-			cout << "Pattern length:" << m << endl;
-			int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
-			end = get_time::now();
-			diff = end - begin;
-			if ( num_Occ==0 )
-				cout << "No found\n";
-			else
-			{
-				cout << "Number of occurrences:" << Occ.size() << endl;
-				cout << "Positions of occurrences: ";
-				for ( auto it = Occ.begin(); it != Occ.end(); it++ )
-					cout << *it << ' ';
-				cout << '\n';
-				cout << "Searching time: " << chrono::duration_cast<chrono::milliseconds>(diff).count() << " ms" << endl;
-			}
-			Occ.clear();
-		}
-	}
-#endif
-
-#if 0
-	while ( true )
-	{
-		string pattern;
-		cout << "Enter pattern, or enter \"exit\" to exit:" << endl;
-		cin >> pattern;
-		if ( pattern == "exit" )
-		{
-			cout << "Program exit!" << endl;
-			end = get_time::now();
-			diff = end - begin;
-			cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
-			return 0;
-		}
-		else
-		{
-			int m = pattern.size();
 			list<int> Occ;
 			cout << "Pattern length:" << m << endl;
 			int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
@@ -219,6 +163,52 @@ int main (int argc, char ** argv )
 #endif
 
 #if 1
+	while ( true )
+	{
+		string pattern;
+		cout << "Enter pattern, or enter \"exit\" to exit:" << endl;
+		cin >> pattern;
+		if ( pattern == "exit" )
+		{
+			cout << "Program exit!" << endl;
+			end = get_time::now();
+			diff = end - begin;
+			return 0;
+		}
+		else
+		{
+			int m = pattern.size();
+			list<int> Occ;
+			cout << "Pattern length:" << m << endl;
+			int num_Occ = match ( pattern, sq, n, SA, LCP, ME, Occ, rmq );
+			ofstream result;
+			result.open( output_file, ios::app );
+			result << pattern << ":";
+			if ( num_Occ == 0 )
+			{
+				cout << "No found\n";
+				result << "No found\n";
+			}
+			else
+			{
+
+				cout << "Number of occurrences:" << Occ.size() << endl;
+				cout << "Positions of occurrences: ";
+				for ( auto it = Occ.begin(); it != Occ.end(); it++ )
+				{
+					cout << *it << ' ';
+					result << *it << ' ';
+				}
+				cout << '\n';
+				result << '\n';
+				result.close();
+			}
+			Occ.clear();
+		}
+	}
+#endif
+
+#if 0 
 	ifstream input_pattern ( "pattern.fa" );
 	int times = 0;
 	while ( true )	
@@ -254,6 +244,7 @@ int main (int argc, char ** argv )
 	delete[] LCP;
 	delete[] ME;
 	delete[] psq;
+	
 	for ( int i = 0; i < n; i++ )
 		delete[] text[i];
 	delete[] text;
