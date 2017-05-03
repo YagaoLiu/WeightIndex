@@ -117,6 +117,7 @@ void stNode::removeChild( char c )
 	auto it = this->child.find( c );
 	if ( it != this->child.end() )
 	{
+		it->second->deleteNode();
 		this->child.erase( it );
 	}
 }
@@ -141,20 +142,16 @@ void stNode::setParent( stNode * parentNode )
 	this->parent = parentNode;
 }
 
-stNode::~stNode()
+void stNode::deleteNode()
 {
-	auto it = this->parent->child.find( this->label );
-	this->parent->child.erase( it );
-	for ( auto it = this->child.begin(); it != this->child.end(); ++it )
+	if ( this->child.empty() )
+		delete this;
+	else
 	{
-		cout << "delete " << it->second << endl;
-		delete it->second;
-	}
-	this->child.clear();
-	if ( this->parent->child.empty() )
-	{
-		cout << "delete " << this->parent << endl;
-		delete this->parent;
+		for ( auto it = this->child.begin(); it != this->child.end(); ++it )
+		{
+			it->second->deleteNode();
+		}
 	}
 }
 

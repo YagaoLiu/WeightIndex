@@ -28,6 +28,7 @@ class stNode
 	private:
 		int start;
 		int depth;
+		int isnew;
 		char label;
 		unordered_map<char, stNode*> child;
 		stNode * parent;
@@ -50,8 +51,9 @@ class stNode
 		void setParent ( stNode * parentNode );
 		int numChild();
 		void printChild();
+		void deleteNode();
+		void setnew();
 		stNode** allChild();
-		~stNode();
 };
 
 #endif

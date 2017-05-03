@@ -28,6 +28,8 @@
 using namespace std;
 using get_time = chrono::steady_clock;
 
+double ** text;
+
 int main (int argc, char ** argv )
 {
 	TSwitch sw;
@@ -38,7 +40,6 @@ int main (int argc, char ** argv )
 	double z;
 	
 	int n;
-	double ** text;
 
 	unsigned int k;
 
@@ -120,26 +121,34 @@ int main (int argc, char ** argv )
 
 	string sq;
 	weighted_index_building ( text, n, z, &sq );
-
 	int N = sq.size();
 	int * ME = new int [N];
 	MaximalSolidFactors ( text, sq, N, n, z, ME );
 
+	auto end = get_time::now();
+	auto diff = end - begin;
+	cout << "time:" << chrono::duration_cast<chrono::milliseconds>(diff).count() << " ms "<< endl;
 	//build trimmed suffix tree of sq
+	cout << "build suffix tree" << endl;
 	suffixTree ST(sq);
+	cout << "trim suffix tree " << endl;
 	ST.trimST(ME, n+1);
-
+#if 1 
 	ofstream result ( output_file );
 	switch ( mod )
 	{
 		case 0:
+			{
+				end = get_time::now();
+				diff = end - begin;
+	cout << "time:" << chrono::duration_cast<chrono::milliseconds>(diff).count() << " ms "<< endl;
 			cout << "The final z-sting and Maximal solid factor array will output to " << output_file << endl;
-			result << sq << endl;
-			for ( auto it = 0; it < N; it++ )
-				result << ME[it] << ' ';
-			result << endl;
+//			result << sq << endl;
+//			for ( auto it = 0; it < N; it++ )
+//				result << ME[it] << ' ';
+//			result << endl;
 			return 0;
-
+			}
 		case 1:
 			while ( true )
 			{
@@ -149,9 +158,9 @@ int main (int argc, char ** argv )
 				if ( pattern == "exit" )
 				{
 					cout << "Program exit!" << endl;
-					auto end = get_time::now();
-					auto diff = end - begin;
-					cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
+				//	auto end = get_time::now();
+				//	auto diff = end - begin;
+				//	cout<<"Total Elapsed time is :  "<< chrono::duration_cast<chrono::milliseconds>(diff).count()<<" ms "<<endl;
 					return 0;
 				}
 				else
@@ -227,6 +236,9 @@ int main (int argc, char ** argv )
 			}
 			return 0;
 	}
+#endif
+
+	delete ME;
 	for ( int i = 0; i < n; i++ )
 		delete[] text[i];
 	delete[] text;

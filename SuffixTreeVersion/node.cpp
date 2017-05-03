@@ -16,16 +16,22 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <iostream>
 
 #include "node.h"
 
 using namespace std;
+
+extern double ** text;
+extern vector <int> heavy_string;
+string alpha = "ACGT";
 
 void Node::Copy ( Node * x )
 {
 	this->coreNode = x;
 	this->odds = x->odds;
 	this->edge = x->edge;
+	this->pos = x->pos;
 	for ( int i = 0; i < (int) x->child.size(); i++ )
 	{
 		Node * child = new Node;
@@ -40,14 +46,39 @@ void Node::Update( double p, double z )
 	int parent_token = floor ( this->odds * z );
 	int child_token = 0;
 	int num_token;
-	for ( int i = 0; i < (int) this->child.size(); i++ )
+	for ( int i = 0; i < this->child.size(); i++ )
 	{
 		this->child[i]->odds *= p;
 		if ( this->child[i]->odds < 1/z )
 		{
-			this->child[i]->deleteNode();
-			this->child.erase( this->child.begin() + i );
-			i--;
+			double tempOdds = this->odds;
+			if ( tempOdds * text[this->pos][this->child[i]->edge] < 1/z )
+			{
+				this->child[i]->deleteNode();
+				this->child.erase( this->child.begin()+i );
+				i--;
+			}
+			else
+			{
+				tempOdds *= text[this->pos][this->child[i]->edge];
+			
+			for ( int k = this->pos+1; k < this->child[i]->pos; k++ )
+			{
+				double tempP = tempOdds * text[k][heavy_string[k]];
+				if ( tempP < 1/z )
+				{
+					this->child[i]->pos  = k;
+					this->child[i]->odds = tempOdds;
+					for ( int ii = 0; ii < this->child[i]->child.size(); ii++ )
+					{
+						this->child[i]->child[ii]->deleteNode();
+					}
+					this->child[i]->child.clear();
+					break;
+				}
+				tempOdds = tempP;
+			}
+			}
 		}
 		else
 		{
@@ -58,7 +89,9 @@ void Node::Update( double p, double z )
 	if ( num_token )
 		this->token.resize( num_token );
 	for ( unsigned int i = 0; i < this->child.size(); i++ )
+	{
 		this->child[i]->Update( p, z );
+	}
 }
 
 int Node::subToken()
@@ -80,6 +113,23 @@ int Node::subToken()
 		}
 	}
 	return token;
+}
+
+void Node::Compact( int e )
+{
+	if ( this->child.size() == 1 && this->parent )
+	{
+			this->child[0]->edge = this->edge;
+			this->child[0]->parent = this->parent;
+			this->parent->child[e] = this->child[0];
+			this->parent->child[e]->Compact ( e );
+			delete this;
+	}
+	else
+	{
+		for ( unsigned int i = 0; i < this->child.size(); i++ )
+			this->child[i]->Compact( i );
+	}
 }
 
 void Node::deleteNode()

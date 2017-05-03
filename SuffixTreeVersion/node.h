@@ -26,13 +26,15 @@ struct Node
 {
 		Node * parent;				//parent node of this node
 		Node * coreNode;			//corresponding node of this node
+		int pos;
 		vector < Node* > child;		//all children nodes of this node
-		string edge;				//the edge between this node and its parent
+		int edge = 0;				//the edge between this node and its parent
 		double odds;				//the probability of this node
 		vector < int > token;		//the token given to this node
 		void Copy( Node * x );		//deep copy of a node
 		void Update( double p, double z );	//update this node when add a new letter in the tree
 		int subToken();				//get all tokens in the subtree of this node
+		void Compact( int e );
 		void deleteNode();			//destructor
 };
 

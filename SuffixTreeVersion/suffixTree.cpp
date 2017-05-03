@@ -89,6 +89,7 @@ void suffixTree::bfs_leaves()
 
 suffixTree::~suffixTree()	
 {
+	this->root->deleteNode();
 }
 
 void suffixTree::ComputeSuffixLink( stNode * u )
@@ -115,7 +116,7 @@ stNode * suffixTree::createNode( stNode * u, int d )
 	v->addChild( u, this->T->at( i+d ) );
 	p->addChild( v, this->T->at( i+p->getDepth() ) );
 	return v;
-}	
+}
 
 stNode * suffixTree::createNode_trim( stNode * u, int d )
 {
@@ -124,8 +125,21 @@ stNode * suffixTree::createNode_trim( stNode * u, int d )
 	stNode * v = new stNode( i, d, this->T->at( i+p->getDepth() ) );
 	v->addChild( u, this->T->at( i+d ) );
 	p->addChild( v, this->T->at( i+p->getDepth() ) );
+	u->setParent( p );
 	return v;
-}	
+}
+
+/*
+stNode * suffixTree::createNode_trim( stNode * u, int d )
+{
+	int i = u->getStart();
+	stNode * p = u->getParent();
+	stNode * v = new stNode( i, d, this->T->at( i+p->getDepth() ) );
+	v->addChild( u, this->T->at( i+d ) );
+	p->addChild( v, this->T->at( i+p->getDepth() ) );
+	return v;
+}
+*/
 
 stNode * suffixTree::createBranch( stNode * u, int i, int d )
 {
@@ -138,9 +152,10 @@ stNode * suffixTree::createBranch( stNode * u, int i, int d )
 stNode * suffixTree::forward_search_node( stNode * s, int i, int l )
 {
 	stNode * u = s;
-	int start = s->getStart();
 	int position = i + u->getDepth();
+	int start = s->getStart();
 	int extent = l - u->getDepth();
+
 	while ( extent > 0 )
 	{
 		u = u->getChild( this->T->at( position ) );
@@ -165,6 +180,10 @@ void suffixTree::trimST( int * ME, int m )
 			u->addLeaf( i%m );
 			pair<int, stNode*> newLeaf (i, u->getChild('$'));
 			newLeaves.insert( newLeaf );
+			if ( u->getParent()->getSLink() == NULL )
+			{
+				ComputeSuffixLink( u->getParent() );
+			}
 			u = u->getParent()->getSLink();
 		}
 		else
@@ -172,9 +191,10 @@ void suffixTree::trimST( int * ME, int m )
 			u->addLeaf( i%m );
 			pair<int, stNode*> newLeaf (i, u->getChild('$'));
 			newLeaves.insert( newLeaf );
-			while ( u->getSLink() == NULL )
+//			while ( u->getSLink() == NULL )
+			if ( u->getSLink() == NULL )
 			{
-				u = u->getParent();
+				ComputeSuffixLink( u );
 			}
 			u = u->getSLink();
 		}
